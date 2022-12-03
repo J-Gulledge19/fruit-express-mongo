@@ -13,20 +13,20 @@ const router = express.Router() // router will have all routes attached to it
 //////// Actual Routes
 ///////////////////////////////////////////////
 
-
-router.get('/seed', (req, res) => {
-
-    
-
-})
+router.use((req, res, next) => {
+    if (req.session.loggedIn) {
+      next();
+    } else {
+      res.redirect("/user/login");
+    }
+  });
 
 router.get('/', (req, res) => {
 
     // Get all fruits from mongo and send them back
-    Fruit.find({})
-    .then((fruits) => {
+    Fruit.find({username: req.session.username}, (err, fruits) => { // Finds only that users data
         // res.json(fruits)
-        res.render('fruits/index.ejs', { fruits })
+        res.render('fruits/index.ejs', { fruits, user: req.session.username })
     })
     .catch(err => console.log(err))
 
@@ -36,15 +36,18 @@ router.get('/new', (req, res) => {
     res.render('fruits/new.ejs')
 })
 
-router.post('/', (req, res) => {
-    
-    req.body.readyToEat = req.body.readyToEat === 'on' ? true : false
-
-    Fruit.create(req.body, (err, createdFruit) =>{
-        console.log('created' , createdFruit, err)
-        res.redirect('/fruits')
-    })
-} )
+// create route
+router.post("/", (req, res) => {
+    // check if the readyToEat property should be true or false
+    req.body.readyToEat = req.body.readyToEat === "on" ? true : false;
+    // add username to req.body to track related user
+    req.body.username = req.session.username
+    // create the new fruit
+    Fruit.create(req.body, (err, fruit) => {
+      // redirect the user back to the main fruits page after fruit created
+      res.redirect("/fruits");
+    });
+  });
 
 router.get('/:id/edit', (req, res) => {
 

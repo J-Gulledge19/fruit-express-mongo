@@ -7,9 +7,11 @@
 
 
         <main>
+            <h3>Logged in as: <%=user%></h3>
             <div>
                 <a href="/fruits/new"><button>Create New Fruit</button></a>
-                
+                <a href="/user/logout"><button>Logout</button></a>
+
                 <% for (fruit of fruits) { %>
                     <article>
                         <a href="/fruits/<%= fruit._id %>">
